@@ -1,4 +1,3 @@
-
 function varargout = GUIDEE(varargin)
 
 % Begin initialization code - DO NOT EDIT
@@ -138,7 +137,7 @@ function B2_Callback(hObject, eventdata, handles)
     set(handles.KK1,'string','CADERA');
     set(handles.KK2,'string','RODILLA');
     set(handles.KK3,'string','TOBILLA');
-    set(handles.KK4,'string','PÉNDULO');
+    set(handles.KK4,'string','PÃ‰NDULO');
         set(handles.testog1,'visible','on');
 
     set(handles.testog1,'string','STICK BAR');
@@ -158,7 +157,7 @@ function B3_Callback(hObject, eventdata, handles)
     set(handles.salir,'visible','on');
     set(handles.cmz,'visible','on');
     set(handles.text2,'visible','on');
-    set(handles.text2,'string','Ingresa en número de zancadas');
+    set(handles.text2,'string','Ingresa en nÃºmero de zancadas');
     set(handles.tiempito,'visible','on');
     set(handles.TDZ,'visible','on');
     set(handles.emg_g1,'visible','on');
@@ -176,7 +175,7 @@ function B3_Callback(hObject, eventdata, handles)
         set(handles.KK1,'string','CADERA');
     set(handles.KK2,'string','RODILLA');
     set(handles.KK3,'string','TOBILLA');
-    set(handles.KK4,'string','PÉNDULO');
+    set(handles.KK4,'string','PÃ‰NDULO');
         set(handles.testog1,'string','STICK BAR');
 
     cla(handles.imboni);
@@ -273,14 +272,14 @@ function cmz_Callback(hObject, eventdata, handles)
    yyy= handles.cmz.UserData;   
    
 
-   if yyy== 1 %En caso de que sea uno, cuado se presione el botón de inicio cmz se iniciará el proceso relativo a la sección ELECTROMIOGRAMA
+   if yyy== 1 %En caso de que sea uno, cuado se presione el botÃ³n de inicio cmz se iniciarÃ¡ el proceso relativo a la secciÃ³n ELECTROMIOGRAMA
                     fprintf('Hola 1\n')
                     sub1=handles.emg_g3;
                     ttt=str2num(get(handles.tiempito,'String')); %dd es la cantidad de tiempo
                     puertoo=get(handles.com,'String');
                     puertx=arduino(puertoo);
 
-                    [fs] = captura(puertx);
+                    [fs] = captura_arduino(puertx);
 
                     d1 = designfilt('lowpassiir','FilterOrder',4, ...
                         'PassbandFrequency',10,'PassbandRipple',0.0000001, ...
@@ -296,7 +295,7 @@ function cmz_Callback(hObject, eventdata, handles)
 
 
                       while c <= ttt*10
-               [v,rec] = sweep(fs,puertx);
+               [v,rec] = leer_muestra(fs,puertx);
                 if c == 1
                     vc = v;
                     rect=rec;
@@ -350,41 +349,41 @@ function cmz_Callback(hObject, eventdata, handles)
                     color=[1 0 120/255];
                     warning off;
                     archivo=str2num(fileread('ADRIANA.txt'));
-                    x=(archivo(:,1))/274; %Se aplica la escala de pÃ­xeles a metros
-                    y=(-1*archivo(:,2))/274; %Se aplica la escala de pÃ­xeles a metros y se realiza el ajuste de las ordenadas.
-                    x=x-min(x); %Recorre el valor inicial de x a 0
-                    y=y-min(y); %Recorre el valor inicial de y a 0
+                    x=(archivo(:,1))/274;
+                    y=(-1*archivo(:,2))/274;
+                    x=x-min(x);
+                    y=y-min(y);
                     porcentaje=(1/(length(x)/5):1/(length(x)/5):1)*300;
-                    posicion=zeros(1,length(porcentaje)); %Vector para encontrar punto de apoyo
+                    posicion=zeros(1,length(porcentaje));
                     for i=1:1:length(x)/5
-                      deltax=x(5*i-4)-x(5*i-3); %Cateto adyacente
-                        deltay=y(5*i-4)-y(5*i-3); %Cateto opuesto 
-                        deltax=x(5*i-2)-x(5*i-3); %Reciclamos las variables para el resto de los Ã¡ngulos
+                      deltax=x(5*i-4)-x(5*i-3);
+                        deltay=y(5*i-4)-y(5*i-3);
+                        deltax=x(5*i-2)-x(5*i-3);
                         deltay=y(5*i-3)-y(5*i-2);
-                        deltax=x(5*i)-x(5*i-1); %Volvemos a reciclar las variables
+                        deltax=x(5*i)-x(5*i-1);
                         deltay=y(5*i)-y(5*i-1);
-                        deltax=x(5*i-1)-x(5*i-3); %Cateto
-                        deltay=y(5*i-3)-y(5*i-1); %Cateto
-                        hipotenusa=sqrt(deltax^2+deltay^2); %Hipotenusa
-                        pendulo(i)=acosd(deltax/hipotenusa); %Ã?ngulo entre la articulaciÃ³n coxofemoral y la del tobillo
+                        deltax=x(5*i-1)-x(5*i-3);
+                        deltay=y(5*i-3)-y(5*i-1);
+                        hipotenusa=sqrt(deltax^2+deltay^2);
+                        pendulo(i)=acosd(deltax/hipotenusa);
                     end
                     for i=1:1:length(x)/5
-                            if abs(pendulo(i)-90)<1 %Busca el instante donde se produce el apoyo
+                            if abs(pendulo(i)-90)<1
                              posicion(i)=1;
                         end
-                         if abs(pendulo(i)-pendulo(5))<7 %Busca la el inicio/fin de la zancada
+                         if abs(pendulo(i)-pendulo(5))<7
                              posicion2(i)=1;
                          end
                     end
-                    a=0; %Contador
-                    minimos=[]; %Vector para buscar la posicion de los puntos de apoyo
+                    a=0;
+                    minimos=[];
                     i=1;
 
                     while i<=length(posicion)
-                        if posicion(i)==1 %Busca el valor donde se produce el apoyo
+                        if posicion(i)==1
                             a=a+1;
                             minimos(a)=i;
-                            i=i+floor(length(posicion)/3.5); %Salta para evitar tomar dos zancadas consecutivas
+                            i=i+floor(length(posicion)/3.5);
                         else
                             i=i+1;
                         end
@@ -392,40 +391,38 @@ function cmz_Callback(hObject, eventdata, handles)
 
                     i=1;
                     a=0;
-                    centro=1:1:length(x)/5; %Vector posicion centro de la cabeza
-                    altura=(y(6)-y(10))*.75;%Altura para dibujar el tronco
-                    cuello=y(6)-y(10)+altura;%Altura para dibujar el cuello
-                    codo=altura/5; %El codo es un triÃ¡ngulo rectÃ¡ngulo, este es el valot de un cateto
-                    centro(1)=cuello*1.05; %Coordenada y de centro de la cabeza en la primera zancada
-                    radio=centro(1)-cuello; %Radio de la cabeza
-                    estatura=cuello+2*radio;%Altura para dibujar el tronco
+                    centro=1:1:length(x)/5;
+                    altura=(y(6)-y(10))*.75;
+                    cuello=y(6)-y(10)+altura;
+                    codo=altura/5;
+                    centro(1)=cuello*1.05;
+                    radio=centro(1)-cuello;
+                    estatura=cuello+2*radio;
                     end
-                    i=1; %Inicializa el contador
-                    G=1; %Contador
+                    i=1;
+                    G=1;
                     m=m+1;
-                  %xlim([min(x) max(x)])
-                    %ylim([min(y) estatura*1.1]); %Conserva las dimensiones de las lÃ­nea
                 set(sub1);
                 set(sub1,'YLimMode','manual');
                 set(sub1,'YLim',[min(y) estatura*1.1]);
                 set(sub1,'XLimMode','manual');
                 set(sub1,'XLim',[min(x) max(x)]);     
                     w=m;
-                       a=5*w-4; %Busca la posiciÃ³n de la marca de la cadera
-                        b=5*w; %Busca la posiciÃ³n de la marca de la punta del pie
+                       a=5*w-4;
+                        b=5*w;
 
-                             if w==minimos(d) || minimos(d)==1 %Pinta de verde cuando se tiene punto de apoyo
+                             if w==minimos(d) || minimos(d)==1
                                 color=[0 1 0];
                              end
                         
-                    h=line(handles.emg_g3,x(a:b),y(a:b),'color',color); %Plotea cadera-pie
-                    tronco=line(handles.emg_g3,[x(a) x(a)],[y(a) y(a)+altura],'color',color); %Plotea dorso
-                    brazo=line(handles.emg_g3,[x(a) x(a)-codo],[y(a)+altura*.8 y(a)+altura*.5],'color',color); %Plotea brazo
-                    antebrazo=line(handles.emg_g3,[x(a)-codo x(a)+.2*codo],[y(a)+altura*.5 y(a)+altura*.5],'color',color);  %Plotea antebrazo
+                    h=line(handles.emg_g3,x(a:b),y(a:b),'color',color);
+                    tronco=line(handles.emg_g3,[x(a) x(a)],[y(a) y(a)+altura],'color',color);
+                    brazo=line(handles.emg_g3,[x(a) x(a)-codo],[y(a)+altura*.8 y(a)+altura*.5],'color',color);
+                    antebrazo=line(handles.emg_g3,[x(a)-codo x(a)+.2*codo],[y(a)+altura*.5 y(a)+altura*.5],'color',color);
                     n=viscircles(sub1,[x(a) altura*2.5],.1,'color',color,'linewidth',1/72);
                     hold on
-                        pause(.01); %Pausa para que se asemeje a los fps
-                            if w==minimos(d) || minimos(d)==1 %Avanza al siguiente punto de apoyo
+                        pause(.01);
+                            if w==minimos(d) || minimos(d)==1
                                 d=d+1;
                                 if d>=length(minimos)
                                 d=length(minimos);
@@ -438,9 +435,6 @@ function cmz_Callback(hObject, eventdata, handles)
                             con=w;
                                 if jaja==0
                             color=[1 0 120/255];
-%                             delete(h); %AquÃ­ se borran las marcas para mantener solo la actual
-%                             delete(tronco);
-%                             delete(brazo);
                             delete(antebrazo);
                             delete(n);
                                 end
@@ -460,7 +454,7 @@ function cmz_Callback(hObject, eventdata, handles)
                  
         
     
-   elseif yyy==2 %En caso de que sea uno, cuado se presione el botón de inicio cmz se iniciará el proceso relativo a la sección MARCHA PRODUCIDA
+   elseif yyy==2 %En caso de que sea uno, cuado se presione el botÃ³n de inicio cmz se iniciarÃ¡ el proceso relativo a la secciÃ³n MARCHA PRODUCIDA
            arki=get(handles.TDAA,'string');
            arko=strcat(arki,'.txt');
            sub1=handles.emg_g1;
@@ -471,95 +465,94 @@ function cmz_Callback(hObject, eventdata, handles)
     pixeles=str2num(get(handles.com,'string'));
     metros=str2num(get(handles.tiempito,'string'));
     
-   archivo=fileread(arko);%Lee el archivo
-archivo=str2num(archivo); %El archivo original es una cadena de caracteres, hay que convertirlo a número
+   archivo=fileread(arko);
+archivo=str2num(archivo);
 warning off;
  nombre='olis';
-escala=metros/pixeles; %Realiza cÃ¡lculo de la escala
+escala=metros/pixeles;
 if archivo(5,2)<archivo(1,2) 
-    archivo=acomodar(archivo);%Corrige el orden de los puntos de ser necesario
+    archivo=ordenar_puntos(archivo);%Corrige el orden de los puntos de ser necesario
 end
-x=(archivo(:,1))/escala; %Se aplica la escala de pÃ­xeles a metros
-y=(-1*archivo(:,2))/escala; %Se aplica la escala de pÃ­xeles a metros y se realiza el ajuste de las ordenadas.
-while mod(length(x),5)~=0 %Recortamos los vectores cuando es necesario, se requiere que el nÃºmero de marcas 5
+x=(archivo(:,1))/escala;
+y=(-1*archivo(:,2))/escala;
+while mod(length(x),5)~=0
     x(end)=[];
     y(end)=[];
 end
-x=x-min(x); %Recorre el valor inicial de x a 0
-y=y-min(y); %Recorre el valor inicial de y a 0
-cadera=1:1:length(x)/5; %Se crean los vectores desde el inicio para asegurarnos que cuadren las dimensiones
+x=x-min(x);
+y=y-min(y);
+cadera=1:1:length(x)/5;
 rodilla=1:1:length(x)/5;
 tobillo=1:1:length(x)/5;
 porcentaje=(1/(length(x)/5):1/(length(x)/5):1)*300;
-posicion=zeros(1,length(porcentaje)); %Vector para encontrar punto de apoyo
-posicion2=zeros(1,length(porcentaje)); %Vector para encontrar inicio/fin de las zancadas
+posicion=zeros(1,length(porcentaje));
+posicion2=zeros(1,length(porcentaje));
 for i=1:1:length(x)/5
-  deltax=x(5*i-4)-x(5*i-3); %Cateto adyacente
-    deltay=y(5*i-4)-y(5*i-3); %Cateto opuesto
-    hipotenusa=sqrt(deltax^2+deltay^2); %Hipotenusa
-    cadera(i)=acosd(deltax/hipotenusa); %Calculamos el Ã¡ngulo  
-       deltax=x(5*i-2)-x(5*i-3); %Reciclamos las variables para el resto de los Ã¡ngulos
+  deltax=x(5*i-4)-x(5*i-3);
+    deltay=y(5*i-4)-y(5*i-3);
+    hipotenusa=sqrt(deltax^2+deltay^2);
+    cadera(i)=acosd(deltax/hipotenusa);
+       deltax=x(5*i-2)-x(5*i-3);
     deltay=y(5*i-3)-y(5*i-2);
     hipotenusa=sqrt(deltax^2+deltay^2);
     rodilla(i)=acosd(deltax/hipotenusa);
-     deltax=x(5*i)-x(5*i-1); %Volvemos a reciclar las variables
+     deltax=x(5*i)-x(5*i-1);
     deltay=y(5*i)-y(5*i-1);
     hipotenusa=sqrt(deltax^2+deltay^2);
-    %tobillo(i)=asind(deltay/hipotenusa);
     tobillo(i)=acosd(deltax/hipotenusa);
-        deltax=x(5*i-1)-x(5*i-3); %Cateto
-    deltay=y(5*i-3)-y(5*i-1); %Cateto
-    hipotenusa=sqrt(deltax^2+deltay^2); %Hipotenusa
-    pendulo(i)=acosd(deltax/hipotenusa); %Ã?ngulo entre la articulaciÃ³n coxofemoral y la del tobillo
+        deltax=x(5*i-1)-x(5*i-3);
+    deltay=y(5*i-3)-y(5*i-1);
+    hipotenusa=sqrt(deltax^2+deltay^2);
+    pendulo(i)=acosd(deltax/hipotenusa);
 end
 for i=1:1:length(x)/5
-        if abs(pendulo(i)-90)<1 %Busca el instante donde se produce el apoyo
+        if abs(pendulo(i)-90)<1
          posicion(i)=1;
     end
-     if abs(pendulo(i)-pendulo(5))<7 %Busca la el inicio/fin de la zancada
+     if abs(pendulo(i)-pendulo(5))<7
          posicion2(i)=1;
      end
 end
-a=0; %Contador
-b=0; %Contador
-minimos=[]; %Vector para buscar la posicion de los puntos de apoyo
-minimos2=[]; %Vector para buscar la posicion del inicio fin de la zancada
+a=0;
+b=0;
+minimos=[];
+minimos2=[];
 i=1;
 while i<=length(posicion)
-    if posicion(i)==1 %Busca el valor donde se produce el apoyo
+    if posicion(i)==1
         a=a+1;
         minimos(a)=i;
-        i=i+floor(length(posicion)/3.5); %Salta para evitar tomar dos zancadas consecutivas
+        i=i+floor(length(posicion)/3.5);
     else
         i=i+1;
     end
 end
 i=1;
 a=0;
-while i<=length(posicion2) %Busca el valor de inicio/fin de zancada
+while i<=length(posicion2)
     if posicion2(i)==1
         a=a+1;
         minimos2(a)=i;
-        i=i+floor(length(posicion)/3.5); %Salta para evitar tomar dos zancadas conscutivas
+        i=i+floor(length(posicion)/3.5);
     else
         i=i+1;
     end
 end
-centro=1:1:length(x)/5; %Vector posicion centro de la cabeza
-altura=(y(6)-y(10))*.75;%Altura para dibujar el tronco
-cuello=y(6)-y(10)+altura;%Altura para dibujar el cuello
-codo=altura/5; %El codo es un triÃ¡ngulo rectÃ¡ngulo, este es el valot de un cateto
-centro(1)=cuello*1.05; %Coordenada y de centro de la cabeza en la primera zancada
-radio=centro(1)-cuello; %Radio de la cabeza
-estatura=cuello+2*radio;%Altura para dibujar el tronco
-cadera=smooth(cadera);%Suavizamos las grÃ¡ficas
+centro=1:1:length(x)/5;
+altura=(y(6)-y(10))*.75;
+cuello=y(6)-y(10)+altura;
+codo=altura/5;
+centro(1)=cuello*1.05;
+radio=centro(1)-cuello;
+estatura=cuello+2*radio;
+cadera=smooth(cadera);
 rodilla=smooth(rodilla);
 tobillo=smooth(tobillo);
-i=1; %Inicializa el contador
-a=1;%Marca Cresta
-b=5;%Marca Punta Pie
-c=1; %Contador
-d=1; %Contador
+i=1;
+a=1;
+b=5;
+c=1;
+d=1;
  set(sub1)
            set(sub1,'YLimMode','manual');
            set(sub1,'YLim',[0 estatura*1.1]);
@@ -585,63 +578,63 @@ d=1; %Contador
            set(sub5,'YLim',[min(pendulo) max(pendulo)]);
            set(sub5,'XLimMode','manual');
            set(sub5,'XLim',[0 max(porcentaje)]);
-for i=2:1:length(x)/5 %Se divide entre 5 ya que son 5 puntos por frame
-    a=5*i-4; %Busca la posiciÃ³n de la marca de la cadera
-    b=5*i; %Busca la posiciÃ³n de la marca de la punta del pie
+for i=2:1:length(x)/5
+    a=5*i-4;
+    b=5*i;
         centro(i)=y(a)+altura;
         centrox=x(a);
-         if i==minimos(d) || minimos(d)==1 %Pinta de verde cuando se tiene punto de apoyo
+         if i==minimos(d) || minimos(d)==1
             color=[0 1 0];
         end
-        if i==minimos2(c) || minimos2(c)==1 %Pinta de blanco cuando es el inicio/fin de la zancada
+        if i==minimos2(c) || minimos2(c)==1
             color=[1 1 1];
         end
-h=line(sub1,x(a:b),y(a:b),'color',color); %Plotea cadera-pie
-tronco=line(sub1,[x(a) x(a)],[y(a) y(a)+altura],'color',color); %Plotea dorso
-brazo=line(sub1,[x(a) x(a)-codo],[y(a)+altura*.8 y(a)+altura*.5],'color',color); %Plotea brazo
-antebrazo=line(sub1,[x(a)-codo x(a)+.2*codo],[y(a)+altura*.5 y(a)+altura*.5],'color',color);  %Plotea antebrazo
+h=line(sub1,x(a:b),y(a:b),'color',color);
+tronco=line(sub1,[x(a) x(a)],[y(a) y(a)+altura],'color',color);
+brazo=line(sub1,[x(a) x(a)-codo],[y(a)+altura*.8 y(a)+altura*.5],'color',color);
+antebrazo=line(sub1,[x(a)-codo x(a)+.2*codo],[y(a)+altura*.5 y(a)+altura*.5],'color',color);
 cabeza=viscircles(sub1,[centrox centro(i)],radio,'color',color,'LineWidth',1/72);
         color=[1 0 120/255];
 line(sub2,porcentaje(i-1:i),cadera(i-1:i),'color',color);
-if i==minimos2(c) || minimos2(c)==1 %Cada if aÃ±ade una marca para indicar el inicio/fin de la zancada
+if i==minimos2(c) || minimos2(c)==1
     axes(sub2);
-            xline(300*i/length(porcentaje),'--',{'Inicio/Fin','Zancada'},'Color',[1 1 1]); %Texto fase traslado a la derecha
-            xline(300*i/length(porcentaje),'--','Color',[1 1 1]); %Traza la lÃ­nea punteada entre las dos fases
+            xline(300*i/length(porcentaje),'--',{'Inicio/Fin','Zancada'},'Color',[1 1 1]);
+            xline(300*i/length(porcentaje),'--','Color',[1 1 1]);
 end
 line(sub3,porcentaje(i-1:i),rodilla(i-1:i),'color',color);
 if i==minimos2(c) || minimos2(c)==1 
     axes(sub3);
-             xline(300*i/length(porcentaje),'--',{'Inicio/Fin','Zancada'},'Color',[1 1 1]); %Texto fase traslado a la derecha
-            xline(300*i/length(porcentaje),'--','Color',[1 1 1]); %Traza la lÃ­nea punteada entre las dos fases
+             xline(300*i/length(porcentaje),'--',{'Inicio/Fin','Zancada'},'Color',[1 1 1]);
+            xline(300*i/length(porcentaje),'--','Color',[1 1 1]);
 end
 line(sub4,porcentaje(i-1:i),tobillo(i-1:i),'color',color);
 if i==minimos2(c) || minimos2(c)==1
     axes(sub4);
-            xline(300*i/length(porcentaje),'--',{'Inicio/Fin','Zancada'},'Color',[1 1 1]); %Texto fase traslado a la derecha
-            xline(300*i/length(porcentaje),'--','Color',[1 1 1]); %Traza la lÃ­nea punteada entre las dos fases
+            xline(300*i/length(porcentaje),'--',{'Inicio/Fin','Zancada'},'Color',[1 1 1]);
+            xline(300*i/length(porcentaje),'--','Color',[1 1 1]);
 end
 line(sub5,porcentaje(i-1:i),pendulo(i-1:i),'color',color);
 if i==minimos2(c) || minimos2(c)==1
     axes(sub5);
-            xline(300*i/length(porcentaje),'--',{'Inicio/Fin','Zancada'},'Color',[1 1 1]); %Texto fase traslado a la derecha
-            xline(300*i/length(porcentaje),'--','Color',[1 1 1]); %Traza la lÃ­nea punteada entre las dos fases
+            xline(300*i/length(porcentaje),'--',{'Inicio/Fin','Zancada'},'Color',[1 1 1]);
+            xline(300*i/length(porcentaje),'--','Color',[1 1 1]);
 end
 hold on
-    pause(.01); %Pausa para que se asemeje a los fps
-    if i==minimos2(c) || minimos2(c)==1 %Avanza al siguiente punto donde se encuentra el inicio/fin de la zancada
+    pause(.01);
+    if i==minimos2(c) || minimos2(c)==1
         c=c+1;
         if c>length(minimos2)
             c=length(minimos2);
         end
     else
-        if i==minimos(d) || minimos(d)==1 %Avanza al siguiente punto de apoyo
+        if i==minimos(d) || minimos(d)==1
             d=d+1;
             if d>=length(minimos)
             d=length(minimos);
             end
         else
         color=[1 0 120/255];
-        delete(h); %AquÃ­ se borran las marcas para mantener solo la actual
+        delete(h);
         delete(tronco);
         delete(brazo);
         delete(antebrazo);
@@ -653,7 +646,7 @@ end
         
 
 
-   elseif yyy==3  %En caso de que sea uno, cuado se presione el botón de inicio cmz se iniciará el proceso relativo a la sección MARCHA SIMULADA
+   elseif yyy==3  %En caso de que sea uno, cuado se presione el botÃ³n de inicio cmz se iniciarÃ¡ el proceso relativo a la secciÃ³n MARCHA SIMULADA
            fprintf('Hola 3')
            
            sub1=handles.emg_g1;
@@ -662,14 +655,7 @@ end
            sub4=handles.tobillis;
            sub5=handles.pendulis;
            zancadas=str2num(get(handles.tiempito,'string'));
-           [sub1,sub2,sub3,sub4,sub5,X,Y,x,estatura,cadera,tiempo,rodilla,tobillo,pendulo]=marchaproducida(zancadas,sub1,sub2,sub3,sub4,sub5)
-%           axes(sub1);
-%           
-% title('Stickbar');
-% axis([0 max(X) 0 estatura*1.1]);
-% set(gca,'Color','k'); %Fondo negro
-% xlabel('Metros'); %Etiqueta eje x
-% ylabel('Metros'); %Etiqueta eje y
+           [sub1,sub2,sub3,sub4,sub5,X,Y,x,estatura,cadera,tiempo,rodilla,tobillo,pendulo]=calcular_marcha(zancadas,sub1,sub2,sub3,sub4,sub5)
            set(sub1)
            set(sub1,'YLimMode','manual');
            set(sub1,'YLim',[0 estatura*1.1]);
@@ -704,8 +690,6 @@ x=x-min(x);
 y=y-min(y);
 cambiox=zeros(1,(length(x)-5));
 cambioy=zeros(1,(length(x)-5));
-% zancadas=input('Ingresa el número de zancadas: ','s');
-% zancadas=str2num(zancadas);
 iniciox=x(1:5);
 inicioy=y(1:5);
 for k=1:1:360
@@ -715,7 +699,7 @@ end
 X=1:1:length(cambiox)*zancadas;
 Y=1:1:length(cambiox)*zancadas;
 tiempo=(5/length(cambiox):5/length(cambiox):zancadas);
-cadera=1:1:length(X)/5; %Se crean los vectores desde el inicio para asegurarnos que cuadren las dimensiones
+cadera=1:1:length(X)/5;
 rodilla=1:1:length(X)/5;
 tobillo=1:1:length(X)/5;
 pendulo=1:1:length(X)/5;
@@ -746,35 +730,34 @@ iniciox(1:5)=x(1:5)+x(end-4)*i;
 inicioy(1:5)=y(6:10);
 end
 for i=1:1:length(X)/5
-  deltax=X(5*i-4)-X(5*i-3); %Cateto adyacente
-    deltay=Y(5*i-4)-Y(5*i-3); %Cateto opuesto
-    hipotenusa=sqrt(deltax^2+deltay^2); %Hipotenusa
-    cadera(i)=acosd(deltax/hipotenusa); %Calculamos el ángulo  
-       deltax=X(5*i-2)-X(5*i-3); %Reciclamos las variables para el resto de los ángulos
+  deltax=X(5*i-4)-X(5*i-3);
+    deltay=Y(5*i-4)-Y(5*i-3);
+    hipotenusa=sqrt(deltax^2+deltay^2);
+    cadera(i)=acosd(deltax/hipotenusa);
+       deltax=X(5*i-2)-X(5*i-3);
     deltay=Y(5*i-3)-Y(5*i-2);
     hipotenusa=sqrt(deltax^2+deltay^2);
     rodilla(i)=acosd(deltax/hipotenusa);
-     deltax=X(5*i)-X(5*i-1); %Volvemos a reciclar las variables
+     deltax=X(5*i)-X(5*i-1);
     deltay=Y(5*i)-Y(5*i-1);
     hipotenusa=sqrt(deltax^2+deltay^2);
     tobillo(i)=acosd(deltax/hipotenusa);
-        deltax=X(5*i-1)-X(5*i-3); %Cateto
-    deltay=Y(5*i-3)-Y(5*i-1); %Cateto
-    hipotenusa=sqrt(deltax^2+deltay^2); %Hipotenusa
-    pendulo(i)=acosd(deltax/hipotenusa); %Ángulo entre la articulación coxofemoral y la del tobillo
+        deltax=X(5*i-1)-X(5*i-3);
+    deltay=Y(5*i-3)-Y(5*i-1);
+    hipotenusa=sqrt(deltax^2+deltay^2);
+    pendulo(i)=acosd(deltax/hipotenusa);
 end
 cadera=smooth(cadera);
 rodilla=smooth(rodilla);
 tobillo=smooth(tobillo);
 pendulo=smooth(pendulo);
-centro=1:1:length(X)/5; %Vector posicion centro de la cabeza
-altura=(Y(6)-Y(10))*.75;%Altura para dibujar el tronco
-cuello=Y(6)-Y(10)+altura;%Altura para dibujar el cuello
-codo=altura/5; %El codo es un triángulo rectángulo, este es el valot de un cateto
-centro(1)=cuello*1.05; %Coordenada y de centro de la cabeza en la primera zancada
-radio=centro(1)-cuello; %Radio de la cabeza
-estatura=cuello+2*radio;%Altura para dibujar el tronco
-%cadera=smooth(cadera);%Suavizamos las gráficas
+centro=1:1:length(X)/5;
+altura=(Y(6)-Y(10))*.75;
+cuello=Y(6)-Y(10)+altura;
+codo=altura/5;
+centro(1)=cuello*1.05;
+radio=centro(1)-cuello;
+estatura=cuello+2*radio;
 syms Z;
 for i=1:1:zancadas*length(cambiox)/5
     deltax=X(5*i-4)-X(5*i-3);
@@ -799,9 +782,9 @@ b=5;
 color=[1 0 0];
 centro(1)=Y(a)+altura;
 punto=[X(a),centro(1)+radio];
-tronco=line(sub1,[X(a) X(a)],[Y(a) Y(a)+altura],'color',color); %Plotea dorso
-brazo=line(sub1,[X(a) X(a)-codo],[Y(a)+altura*.8 Y(a)+altura*.5],'color',color); %Plotea brazo
-antebrazo=line(sub1,[X(a)-codo X(a)+.2*codo],[Y(a)+altura*.5 Y(a)+altura*.5],'color',color);%Plotea antebrazo
+tronco=line(sub1,[X(a) X(a)],[Y(a) Y(a)+altura],'color',color);
+brazo=line(sub1,[X(a) X(a)-codo],[Y(a)+altura*.8 Y(a)+altura*.5],'color',color);
+antebrazo=line(sub1,[X(a)-codo X(a)+.2*codo],[Y(a)+altura*.5 Y(a)+altura*.5],'color',color);
 cabeza=viscircles(sub1,punto,radio,'color',color,'LineWidth',1/72);
 inferior=line(sub1,X(a:b),Y(a:b),'color',color);
 color=[1 0 0];
@@ -810,7 +793,7 @@ for i=2:1:zancadas*length(cambiox)/5
     a=5*i-4;
     b=5*i;
     if i==2 || mod(i,length(cambiox)/5)==0
-        marcas(sub1,sub2,sub3,sub4,sub5,i,X,cambiox);
+        dibujar_marcas(sub1,sub2,sub3,sub4,sub5,i,X,cambiox);
     else
     delete(inferior);
     delete(tronco);
@@ -821,9 +804,9 @@ for i=2:1:zancadas*length(cambiox)/5
     end
 centro(i)=Y(a)+altura;
 punto=[X(a),centro(i)+radio];
-tronco=line(sub1,[X(a) X(a)],[Y(a) Y(a)+altura],'color',color); %Plotea dorso
-brazo=line(sub1,[X(a) X(a)-codo],[Y(a)+altura*.8 Y(a)+altura*.5],'color',color); %Plotea brazo
-antebrazo=line(sub1,[X(a)-codo X(a)+.2*codo],[Y(a)+altura*.5 Y(a)+altura*.5],'color',color);%Plotea antebrazo
+tronco=line(sub1,[X(a) X(a)],[Y(a) Y(a)+altura],'color',color);
+brazo=line(sub1,[X(a) X(a)-codo],[Y(a)+altura*.8 Y(a)+altura*.5],'color',color);
+antebrazo=line(sub1,[X(a)-codo X(a)+.2*codo],[Y(a)+altura*.5 Y(a)+altura*.5],'color',color);
 cabeza=viscircles(sub1,punto,radio,'color',color,'LineWidth',1/72);
 inferior=line(sub1,X(a:b),Y(a:b),'color',color);
 color=[1 0 0];
@@ -881,12 +864,6 @@ function text2_CreateFcn(hObject, eventdata, handles)
 
 
 function tiempito_Callback(hObject, eventdata, handles)
-% hObject    handle to tiempito (see GCBO)
-% eventdata  reserved - to be defined in a future version of MATLAB
-% handles    structure with handles and user data (see GUIDATA)
-
-% Hints: get(hObject,'String') returns contents of tiempito as text
-%        str2double(get(hObject,'String')) returns contents of tiempito as a double
 
 
 % --- Executes during object creation, after setting all properties.
@@ -901,12 +878,6 @@ end
 
 
 function com_Callback(hObject, eventdata, handles)
-% hObject    handle to com (see GCBO)
-% eventdata  reserved - to be defined in a future version of MATLAB
-% handles    structure with handles and user data (see GUIDATA)
-
-% Hints: get(hObject,'String') returns contents of com as text
-%        str2double(get(hObject,'String')) returns contents of com as a double
 
 
 
@@ -915,8 +886,6 @@ function com_CreateFcn(hObject, eventdata, handles)
 set(hObject,'visible','off');
 
 
-% Hint: edit controls usually have a white background on Windows.
-%       See ISPC and COMPUTER.
 if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
     set(hObject,'BackgroundColor','white');
 end
@@ -983,12 +952,6 @@ set(hObject,'visible','off');
 
 
 function TDAA_Callback(hObject, eventdata, handles)
-% hObject    handle to TDAA (see GCBO)
-% eventdata  reserved - to be defined in a future version of MATLAB
-% handles    structure with handles and user data (see GUIDATA)
-
-% Hints: get(hObject,'String') returns contents of TDAA as text
-%        str2double(get(hObject,'String')) returns contents of TDAA as a double
 
 
 % --- Executes during object creation, after setting all properties.
@@ -1038,5 +1001,3 @@ set(hObject,'visible','off');
 % --- Executes during object creation, after setting all properties.
 function KK4_CreateFcn(hObject, eventdata, handles)
 set(hObject,'visible','off');
-
-
